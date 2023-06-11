@@ -23,23 +23,24 @@ class App:
                 self.rooms.append(Room(mask[self.difficulty][1][i], mask[self.difficulty][2][i]))
 
     def update(self):
-        if self.gamestate == 0:
-            self.gamestate = self.menu.update_menu()
-            if self.gamestate == 1:
-                self.difficulty = self.menu.difficulty
-                self.load_mask('ressources/mask.json')
-                self.rooms[0].spawn_x, self.rooms[0].spawn_y = 0, 112
-                self.enter_room_state = copy.deepcopy(self.rooms[0])
-            return
+        if (pyxel.btnp(pyxel.KEY_Z)):
+            if self.gamestate == 0:
+                self.gamestate = self.menu.update_menu()
+                if self.gamestate == 1:
+                    self.difficulty = self.menu.difficulty
+                    self.load_mask('ressources/mask.json')
+                    self.rooms[0].spawn_x, self.rooms[0].spawn_y = 0, 112
+                    self.enter_room_state = copy.deepcopy(self.rooms[0])
+                return
 
-        self.player.move(self.rooms[self.current_screen], self.current_screen, self.difficulty)
-        self.update_screen_position()
-        self.rooms[self.current_screen].update_room(self.player.x, self.player.y)
-        
-        if self.player.alive == 0 or pyxel.btnr(pyxel.KEY_R):
-            self.player.reset(self.rooms[self.current_screen].spawn_x, self.rooms[self.current_screen].spawn_y)
-            self.player.alive = 1
-            self.rooms[self.current_screen] = copy.deepcopy(self.enter_room_state)
+            self.player.move(self.rooms[self.current_screen], self.current_screen, self.difficulty)
+            self.update_screen_position()
+            self.rooms[self.current_screen].update_room(self.player.x, self.player.y)
+            
+            if self.player.alive == 0 or pyxel.btnr(pyxel.KEY_R):
+                self.player.reset(self.rooms[self.current_screen].spawn_x, self.rooms[self.current_screen].spawn_y)
+                self.player.alive = 1
+                self.rooms[self.current_screen] = copy.deepcopy(self.enter_room_state)
 
     def update_screen_position(self):
         if self.player.x == 124:
