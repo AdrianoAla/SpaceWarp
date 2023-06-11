@@ -2,6 +2,22 @@ import pyxel, json, copy
 from player import Player
 from rooms import Room
 from menu import Menu
+import _thread
+
+
+'''
+
+1 - ENTER DEBUG MODE
+2 - HALF SPEED (DOESNT WORK)
+3 - TAS MODE
+
+Q - ADVANCE FRAME
+
+'''
+
+def evaluate():
+    while True:
+        eval(input())
 
 class App:
     def __init__(self):
@@ -38,6 +54,7 @@ class App:
                     line = line.split(',')
                     self.TAS_INPUTS += [line]
 
+        _thread.start_new_thread(evaluate, ())
         
 
         pyxel.init(128, 128, title='SpaceWarp')
@@ -88,9 +105,8 @@ class App:
                 self.all_room_states = self.all_room_states[:self.passed_frames]
                 self.all_player_states = self.all_player_states[:self.passed_frames]
                 self.movement = self.movement[:self.passed_frames]
-            else:
-                self.max_passed_frames += 1
-                self.passed_frames = self.max_passed_frames
+            self.max_passed_frames += 1
+            self.passed_frames = self.max_passed_frames
             
             self.all_room_states.append(copy.deepcopy(self.rooms[self.current_screen]))
             self.all_player_states.append(copy.deepcopy(self.player))
