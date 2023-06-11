@@ -12,9 +12,31 @@ class Player:
         self.on_key = -1
         self.alive = 1
 
-    def move(self, room, current_screen, difficulty):
+    def move(self, room, current_screen, difficulty, current_movement):
+
+        right = False
+        left = False
+        jump = False
+
+
+        if (current_movement == None):
+            right = pyxel.btn(pyxel.KEY_RIGHT)
+            left = pyxel.btn(pyxel.KEY_LEFT)
+            jump = pyxel.btn(pyxel.KEY_SPACE) or pyxel.btn(pyxel.KEY_UP)
+
+        else:
+            for m in current_movement:
+                if m == "R":
+                    right = True
+                elif m == "L":
+                    left = True
+                
+                if m == "J":
+                    jump = True
+
+
         if (
-            pyxel.btn(pyxel.KEY_RIGHT)
+            right
             and room.collision(self.x + 8, self.y) != 1
             and room.collision(self.x + 8, self.y + 7) != 1
         ):
@@ -22,7 +44,7 @@ class Player:
             self.dir = 0
             self.moving = 1
         elif (
-            pyxel.btn(pyxel.KEY_LEFT)
+            left
             and ( (room.collision(self.x - 1, self.y) != 1
             and room.collision(self.x - 1, self.y + 7) != 1 
             and self.x > 0)
@@ -36,12 +58,14 @@ class Player:
             self.moving = 0
 
         if (
-            (pyxel.btn(pyxel.KEY_SPACE) or pyxel.btn(pyxel.KEY_UP))
+            (jump)
             and (room.collision(self.x, self.y + 8) == 1
                  or room.collision(self.x + 7, self.y + 8) == 1)
         ):
             self.jumping = 12
         
+
+
         for i in range(self.grav):
             if (
                 self.jumping == 0
