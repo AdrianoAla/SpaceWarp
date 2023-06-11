@@ -25,7 +25,7 @@ class App:
 
     def update(self):
         print("test")
-        if (self.gamestate == 0 or (self.debug and pyxel.btnp(pyxel.KEY_Z)):
+        if self.gamestate == 0 or (self.debug and pyxel.btnp(pyxel.KEY_Z)):
             if self.gamestate == 0:
                 self.gamestate = self.menu.update_menu()
                 if self.gamestate == 1:
