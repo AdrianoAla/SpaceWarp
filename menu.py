@@ -4,7 +4,7 @@ class Menu:
     def __init__(self):
         self.menu_state = 0
         self.selection = 0
-        self.difficulty = 0
+        self.difficulty = 3
         self.options = [['Start', 'Difficulty', 'Help'],
                         ['Easy', 'Normal', 'Hard', 'Lunatic', 'Back'],
                         ['Back']]

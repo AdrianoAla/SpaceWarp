@@ -5,25 +5,40 @@ from menu import Menu
 
 class App:
     def __init__(self):
+        
         self.gamestate = 0
         self.player = Player(0, 112, 0)
         self.current_screen = 0
         self.offset_x = 0
         self.menu = Menu()
+        
         self.debug:bool = False
+
+        self.halfSpeed:bool = False
+        
         self.all_room_states = []
         self.all_player_states = []
+        
         self.passed_frames = 0
         self.max_passed_frames = 0
+
+        # TAS STUFF
 
         self.TAS = False
         self.TAS_INPUTS = []
         self.movement = []
 
-        with open('TAS.txt', 'r') as TAS:
-            for line in TAS:
-                line = line.split(',')
-                self.TAS_INPUTS += [line]
+        import os
+
+        if not os.path.isfile('TAS.txt'):
+            open('TAS.txt', "w").close()
+        else:
+            with open('TAS.txt', 'r') as TAS:
+                for line in TAS:
+                    line = line.split(',')
+                    self.TAS_INPUTS += [line]
+
+        
 
         pyxel.init(128, 128, title='SpaceWarp')
         pyxel.load("ressources/assets.pyxres")
@@ -36,10 +51,26 @@ class App:
             for i in range(mask[self.difficulty][0]):
                 self.rooms.append(Room(mask[self.difficulty][1][i], mask[self.difficulty][2][i]))
 
-    def update(self):        
+    def update(self):  
+
+        # Debug toggle
+
+        if (pyxel.btnp(pyxel.KEY_1)):
+            self.debug = not self.debug
+
+        # FPS
+
+        if (pyxel.btnp(pyxel.KEY_2)):
+            self.halfSpeed = not self.halfSpeed
+            
+
+        # Menu stuff
+
         if self.gamestate == 0:
-            if (pyxel.btnp(pyxel.KEY_T)):
+            
+            if (pyxel.btnp(pyxel.KEY_3)):
                 self.TAS = not self.TAS
+
             self.gamestate = self.menu.update_menu()
             if self.gamestate == 1:
                 self.difficulty = self.menu.difficulty
@@ -48,17 +79,10 @@ class App:
                 self.enter_room_state = copy.deepcopy(self.rooms[0])
             return
         
-        if not self.debug or pyxel.btnp(pyxel.KEY_Z):
-            
-            self.all_room_states.append(copy.deepcopy(self.rooms[self.current_screen]))
-            self.all_player_states.append(copy.deepcopy(self.player))
-            
-            right = 'R,' if pyxel.btn(pyxel.KEY_RIGHT) else ''
-            left = 'L,' if pyxel.btn(pyxel.KEY_LEFT) else ''
-            jump = 'J,' if pyxel.btn(pyxel.KEY_SPACE) or pyxel.btn(pyxel.KEY_UP) else ''
+        # Implements frame advance
 
-            self.movement.append(right+left+jump)
-            
+        if not self.debug or pyxel.btnp(pyxel.KEY_Q):
+                        
             if (self.max_passed_frames  != self.passed_frames):
                 self.max_passed_frames = self.passed_frames
                 self.all_room_states = self.all_room_states[:self.passed_frames]
@@ -67,6 +91,17 @@ class App:
             else:
                 self.max_passed_frames += 1
                 self.passed_frames = self.max_passed_frames
+            
+            self.all_room_states.append(copy.deepcopy(self.rooms[self.current_screen]))
+            self.all_player_states.append(copy.deepcopy(self.player))
+            
+            # Logs movement
+
+            right = 'R,' if pyxel.btn(pyxel.KEY_RIGHT) else ''
+            left = 'L,' if pyxel.btn(pyxel.KEY_LEFT) else ''
+            jump = 'J,' if pyxel.btn(pyxel.KEY_SPACE) or pyxel.btn(pyxel.KEY_UP) else ''
+
+            self.movement.append(right+left+jump)
             
             if not self.TAS:
                 self.player.move(self.rooms[self.current_screen], self.current_screen, self.difficulty, None)
@@ -83,8 +118,9 @@ class App:
                 with open("TAS.txt", "w") as TAS:
                     for i in self.movement:
                         TAS.write(i+'\n')
-
-            
+    
+        # Reset / Death
+    
         if self.player.alive == 0 or pyxel.btnr(pyxel.KEY_R):
 
             if (pyxel.btnr(pyxel.KEY_R)):
@@ -96,16 +132,14 @@ class App:
             self.player.reset(self.rooms[self.current_screen].spawn_x, self.rooms[self.current_screen].spawn_y)
             self.player.alive = 1
             self.rooms[self.current_screen] = copy.deepcopy(self.enter_room_state)
-        
-        if self.debug and pyxel.btnp(pyxel.KEY_MINUS):
-            self.passed_frames -= 1
-            if (self.passed_frames < 0):
-                self.passed_frames = 0
-            self.rooms[self.current_screen] = self.all_room_states[self.passed_frames]
-            self.player = self.all_player_states[self.passed_frames]
-            
-        if self.debug and pyxel.btnp(pyxel.KEY_EQUALS):
-            self.passed_frames += 1
+  
+        # Scroll through frames
+
+        if pyxel.btnv(pyxel.MOUSE_WHEEL_Y) and self.debug:
+            add = -1
+            if (pyxel.mouse_wheel > 0):
+                add = 1
+            self.passed_frames += add
             try:
                 if (self.passed_frames > self.max_passed_frames):
                     self.passed_frames = self.max_passed_frames
@@ -115,9 +149,6 @@ class App:
             except IndexError:
                 pass
 
-
-        if (pyxel.btnp(pyxel.KEY_X)):
-            self.debug = not self.debug
 
     def update_screen_position(self):
         if self.player.x == 124:
@@ -141,7 +172,7 @@ class App:
             pyxel.cls(0)
             self.menu.draw_menu()
         else:
-            if not self.debug or pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.KEY_MINUS) or pyxel.btnp(pyxel.KEY_EQUALS):
+            if not self.debug or pyxel.btnp(pyxel.KEY_Q) or pyxel.btnv(pyxel.MOUSE_WHEEL_Y):
                 pyxel.cls(0)
                 pyxel.bltm(0, 0, self.difficulty + 1, self.current_screen*128, 0, 128, 128)
                 self.rooms[self.current_screen].draw_room()

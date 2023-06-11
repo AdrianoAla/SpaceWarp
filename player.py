@@ -28,7 +28,8 @@ class Player:
             for m in current_movement:
                 if m == "R":
                     right = True
-                elif m == "L":
+                
+                if m == "L":
                     left = True
                 
                 if m == "J":
