@@ -140,6 +140,8 @@ class App:
             if (pyxel.mouse_wheel > 0):
                 add = 1
             self.passed_frames += add
+            if (self.passed_frames < 1):
+                self.passed_frames = 1
             try:
                 if (self.passed_frames > self.max_passed_frames):
                     self.passed_frames = self.max_passed_frames
