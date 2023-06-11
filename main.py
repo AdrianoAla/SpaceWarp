@@ -10,6 +10,7 @@ class App:
         self.current_screen = 0
         self.offset_x = 0
         self.menu = Menu()
+        self.debug:bool = False
 
         pyxel.init(128, 128, title='SpaceWarp')
         pyxel.load("ressources/assets.pyxres")
@@ -23,7 +24,8 @@ class App:
                 self.rooms.append(Room(mask[self.difficulty][1][i], mask[self.difficulty][2][i]))
 
     def update(self):
-        if (pyxel.btnp(pyxel.KEY_Z)):
+        print("test")
+        if (self.gamestate == 0 or (self.debug and pyxel.btnp(pyxel.KEY_Z)):
             if self.gamestate == 0:
                 self.gamestate = self.menu.update_menu()
                 if self.gamestate == 1:
@@ -41,6 +43,9 @@ class App:
                 self.player.reset(self.rooms[self.current_screen].spawn_x, self.rooms[self.current_screen].spawn_y)
                 self.player.alive = 1
                 self.rooms[self.current_screen] = copy.deepcopy(self.enter_room_state)
+        
+        if (pyxel.btnp(pyxel.KEY_X)):
+            self.debug = not self.debug
 
     def update_screen_position(self):
         if self.player.x == 124:
