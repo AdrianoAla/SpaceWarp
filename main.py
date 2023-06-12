@@ -37,6 +37,7 @@ class App:
         
         self.passed_frames = 0
         self.max_passed_frames = 0
+        self.past = False
 
         # TAS STUFF
 
@@ -99,7 +100,8 @@ class App:
         # Implements frame advance
 
         if not self.debug or pyxel.btnp(pyxel.KEY_Q):
-                        
+            self.past = False
+
             if (self.max_passed_frames  != self.passed_frames):
                 self.max_passed_frames = self.passed_frames
                 self.all_room_states = self.all_room_states[:self.passed_frames]
@@ -130,7 +132,7 @@ class App:
             self.update_screen_position()
             self.rooms[self.current_screen].update_room(self.player.x, self.player.y)
 
-            if (self.rooms[self.current_screen].collision(self.player.x, self.player.y) == 6):
+            if (self.rooms[self.current_screen].collision(self.player.x, self.player.y) == 6) and (not self.TAS):
                 with open("TAS.txt", "w") as TAS:
                     for i in self.movement:
                         TAS.write(i+'\n')
@@ -152,6 +154,10 @@ class App:
         # Scroll through frames
 
         if pyxel.btnv(pyxel.MOUSE_WHEEL_Y) and self.debug:
+            if self.past == False:
+                self.all_room_states.append(copy.deepcopy(self.rooms[self.current_screen]))
+                self.all_player_states.append(copy.deepcopy(self.player))
+                self.past = True
             add = -1
             if (pyxel.mouse_wheel > 0):
                 add = 1
