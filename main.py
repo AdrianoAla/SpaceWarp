@@ -10,6 +10,7 @@ import _thread
 1 - ENTER DEBUG MODE
 2 - HALF SPEED (DOESNT WORK)
 3 - TAS MODE
+4 - SAVE TAS
 
 Q - ADVANCE FRAME
 
@@ -137,8 +138,13 @@ class App:
                     for i in self.movement:
                         TAS.write(i+'\n')
     
+        if pyxel.btnp(pyxel.KEY_4):
+            with open("TAS.txt", "w") as TAS:
+                for i in self.movement:
+                    TAS.write(i+'\n')
+
         # Reset / Death
-    
+
         if self.player.alive == 0 or pyxel.btnr(pyxel.KEY_R):
 
             if (pyxel.btnr(pyxel.KEY_R)):
